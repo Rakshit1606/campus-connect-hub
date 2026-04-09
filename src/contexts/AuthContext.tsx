@@ -114,9 +114,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { success: false, error: error.message };
-    return { success: true };
+    try {
+      const authPromise = supabase.auth.signInWithPassword({ email, password });
+      
+      // Fallback timeout to prevent infinite hanging button lock
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) => {
+        setTimeout(async () => {
+          const { data } = await supabase.auth.getSession();
+          if (data?.session?.user) {
+            resolve({ data, error: null }); // Force success if session exists
+          } else {
+            resolve({ data: null, error: new Error("Login timed out or failed silently.") });
+          }
+        }, 4000);
+      });
+
+      const { error } = await Promise.race([authPromise, timeoutPromise]);
+      if (error) return { success: false, error: error.message };
+      
+      // Force trigger state update if onAuthStateChange was bypassed
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setSession(session);
+        const appUser = await buildAppUser(session.user);
+        setUser(appUser);
+      }
+      
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Login failed unexpectedly." };
+    }
   };
 
   const signup = async (email: string, password: string, role: UserRole, fullName: string) => {
