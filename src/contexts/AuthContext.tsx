@@ -62,27 +62,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
+    // Failsafe timeout: force loading to false after 5 seconds
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       setSession(session);
       if (session?.user) {
-        const appUser = await buildAppUser(session.user);
-        setUser(appUser);
+        try {
+          const appUser = await buildAppUser(session.user);
+          if (mounted) setUser(appUser);
+        } catch (e) {
+          console.error("Error building app user", e);
+        }
       } else {
-        setUser(null);
+        if (mounted) setUser(null);
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        const appUser = await buildAppUser(session.user);
-        setUser(appUser);
-      }
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(async ({ data: { session }, error }) => {
+        if (!mounted) return;
+        if (error) throw error;
+        setSession(session);
+        if (session?.user) {
+          try {
+            const appUser = await buildAppUser(session.user);
+            if (mounted) setUser(appUser);
+          } catch (e) {
+            console.error("Error building app user from initial session", e);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Supabase getSession failed:", err);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
