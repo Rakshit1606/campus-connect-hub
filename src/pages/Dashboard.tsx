@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { StatCard, SectionHeader, StatusBadge } from "@/components/ui/shared";
-import { Calendar, Clock, BookOpen, MessageSquare, DollarSign, BarChart3 } from "lucide-react";
+import { Calendar, Clock, BookOpen, MessageSquare, IndianRupee, BarChart3 } from "lucide-react";
 
 const timetable = [
   { time: "09:00", subject: "Data Structures", room: "B-204", type: "Lecture" },
@@ -33,16 +33,14 @@ const facultyQueries = [
 
 const StudentDashboard = () => (
   <div className="space-y-6">
-    {/* Stats */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard title="Attendance" value="84.2%" subtitle="5 classes today" icon={<BarChart3 className="h-5 w-5" />} />
-      <StatCard title="Pending Fees" value="$1,240.00" subtitle="Due Mar 31" icon={<DollarSign className="h-5 w-5" />} />
+      <StatCard title="Pending Fees" value="₹58,500" subtitle="Due Mar 31" icon={<IndianRupee className="h-5 w-5" />} />
       <StatCard title="Open Queries" value="2" subtitle="1 pending response" icon={<MessageSquare className="h-5 w-5" />} />
       <StatCard title="Assignments" value="3" subtitle="Due this week" icon={<BookOpen className="h-5 w-5" />} />
     </div>
 
     <div className="grid lg:grid-cols-3 gap-6">
-      {/* Timetable */}
       <div className="lg:col-span-1">
         <SectionHeader title="Today's Schedule" action={
           <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -71,7 +69,6 @@ const StudentDashboard = () => (
         </div>
       </div>
 
-      {/* Recent Queries */}
       <div className="lg:col-span-1">
         <SectionHeader title="Recent Queries" action={
           <button className="text-xs text-primary font-medium hover:underline">View all</button>
@@ -97,7 +94,6 @@ const StudentDashboard = () => (
         </div>
       </div>
 
-      {/* Announcements */}
       <div className="lg:col-span-1">
         <SectionHeader title="Announcements" action={
           <button className="text-xs text-primary font-medium hover:underline">View all</button>
