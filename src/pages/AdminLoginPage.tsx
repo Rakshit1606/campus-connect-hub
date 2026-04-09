@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth, UserRole } from "@/contexts/AuthContext";
-import { GraduationCap, BookOpen, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Shield, Loader2 } from "lucide-react";
 
-const LoginPage = () => {
-  const { login, signup } = useAuth();
-  const [role, setRole] = useState<"student" | "faculty">("student");
+const AdminLoginPage = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,19 +17,13 @@ const LoginPage = () => {
       setError("Please enter both email and password.");
       return;
     }
-    if (isSignup && !fullName.trim()) {
-      setError("Please enter your full name.");
-      return;
-    }
     setLoading(true);
     try {
-      if (isSignup) {
-        const result = await signup(email, password, role as UserRole, fullName);
-        if (!result.success) setError(result.error || "Signup failed.");
-      } else {
-        const result = await login(email, password);
-        if (!result.success) setError(result.error || "Invalid credentials.");
+      const result = await login(email, password);
+      if (!result.success) {
+        setError(result.error || "Invalid admin credentials.");
       }
+      // Role check happens in routing — if user is not admin, they'll be redirected
     } catch {
       setError("An unexpected error occurred.");
     } finally {
@@ -50,48 +41,23 @@ const LoginPage = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-foreground tracking-tight">CampusFlow</h1>
-          <p className="text-muted-foreground mt-1">{isSignup ? "Create your account" : "Sign in to continue"}</p>
+          <p className="text-muted-foreground mt-1">Admin Portal</p>
         </div>
 
         <div className="bg-card shadow-surface rounded-lg p-6">
-          {/* Role Toggle */}
-          <div className="flex bg-secondary rounded-sm p-1 mb-6">
-            {(["student", "faculty"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-sm text-sm font-medium transition-all duration-150 ${
-                  role === r
-                    ? "bg-card shadow-surface text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {r === "student" ? <GraduationCap className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
-                <span className="capitalize">{r}</span>
-              </button>
-            ))}
+          <div className="flex items-center justify-center gap-2 mb-6 py-3 bg-secondary rounded-sm">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-foreground">Administrator Access</span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignup && (
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full h-10 px-3 rounded-sm bg-background border-0 shadow-surface text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:shadow-elevated transition-all duration-150"
-                />
-              </div>
-            )}
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={role === "student" ? "student@campus.edu" : "faculty@campus.edu"}
+                placeholder="admin@campus.edu"
                 className="w-full h-10 px-3 rounded-sm bg-background border-0 shadow-surface text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:shadow-elevated transition-all duration-150"
               />
             </div>
@@ -101,7 +67,7 @@ const LoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder="Enter admin password"
                 className="w-full h-10 px-3 rounded-sm bg-background border-0 shadow-surface text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:shadow-elevated transition-all duration-150"
               />
             </div>
@@ -124,20 +90,13 @@ const LoginPage = () => {
               disabled={loading}
               className="w-full h-10 bg-primary text-primary-foreground rounded-sm font-medium hover:opacity-90 transition-opacity duration-150 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isSignup ? "Create Account" : "Sign In"}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In as Admin"}
             </button>
           </form>
-
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button onClick={() => { setIsSignup(!isSignup); setError(""); }} className="text-primary font-medium hover:underline">
-              {isSignup ? "Sign In" : "Sign Up"}
-            </button>
-          </p>
         </div>
       </motion.div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;

@@ -3,53 +3,31 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
-  BookOpen,
+  Users,
   IndianRupee,
   MessageSquare,
   Megaphone,
-  BarChart3,
-  Trophy,
   Settings,
   ChevronLeft,
   LogOut,
-  Plus,
+  Shield,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface NavItem {
-  title: string;
-  icon: React.ElementType;
-  path: string;
-  badge?: number;
-}
-
-const studentNav: NavItem[] = [
-  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { title: "Academics", icon: BookOpen, path: "/academics" },
-  { title: "Finance & Fees", icon: IndianRupee, path: "/finance" },
-  { title: "Queries", icon: MessageSquare, path: "/queries", badge: 2 },
-  { title: "Announcements", icon: Megaphone, path: "/announcements" },
-  { title: "Performance", icon: BarChart3, path: "/performance" },
-  { title: "Extra-Curricular", icon: Trophy, path: "/extracurricular" },
-  { title: "Settings", icon: Settings, path: "/settings" },
+const adminNav = [
+  { title: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+  { title: "Users", icon: Users, path: "/admin/users" },
+  { title: "Fees", icon: IndianRupee, path: "/admin/fees" },
+  { title: "Queries", icon: MessageSquare, path: "/admin/queries" },
+  { title: "Announcements", icon: Megaphone, path: "/admin/announcements" },
+  { title: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
-const facultyNav: NavItem[] = [
-  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { title: "Academics", icon: BookOpen, path: "/academics" },
-  { title: "Student Queries", icon: MessageSquare, path: "/queries", badge: 5 },
-  { title: "Announcements", icon: Megaphone, path: "/announcements" },
-  { title: "Performance", icon: BarChart3, path: "/performance" },
-  { title: "Settings", icon: Settings, path: "/settings" },
-];
-
-const AppSidebar = () => {
+const AdminSidebar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-
-  const navItems = user?.role === "faculty" ? facultyNav : studentNav;
 
   return (
     <motion.aside
@@ -57,18 +35,20 @@ const AppSidebar = () => {
       transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
       className="h-screen bg-card shadow-surface flex flex-col flex-shrink-0 overflow-hidden relative z-10"
     >
-      {/* Header */}
       <div className="h-14 flex items-center px-4 flex-shrink-0">
         <AnimatePresence mode="wait">
           {!collapsed && (
-            <motion.span
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-base font-semibold text-foreground tracking-tight whitespace-nowrap"
+              className="flex items-center gap-2"
             >
-              CampusFlow
-            </motion.span>
+              <Shield className="h-4 w-4 text-primary" />
+              <span className="text-base font-semibold text-foreground tracking-tight whitespace-nowrap">
+                Admin Panel
+              </span>
+            </motion.div>
           )}
         </AnimatePresence>
         <button
@@ -79,26 +59,10 @@ const AppSidebar = () => {
         </button>
       </div>
 
-      {/* Raise Query Button (Student) */}
-      {user?.role === "student" && (
-        <div className="px-3 mb-2">
-          <button
-            onClick={() => navigate("/queries/new")}
-            className={`flex items-center gap-2 bg-primary text-primary-foreground rounded-sm font-medium hover:opacity-90 transition-opacity duration-150 ${
-              collapsed ? "h-9 w-9 justify-center mx-auto" : "h-9 px-3 w-full"
-            }`}
-          >
-            <Plus className="h-4 w-4 flex-shrink-0" />
-            {!collapsed && <span className="text-sm">Raise Query</span>}
-          </button>
-        </div>
-      )}
-
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-            (item.path !== "/" && location.pathname.startsWith(item.path));
+        {adminNav.map((item) => {
+          const isActive = location.pathname === item.path ||
+            (item.path !== "/admin" && location.pathname.startsWith(item.path));
           return (
             <button
               key={item.path}
@@ -113,22 +77,12 @@ const AppSidebar = () => {
               title={collapsed ? item.title : undefined}
             >
               <item.icon className="h-4 w-4 flex-shrink-0" />
-              {!collapsed && (
-                <>
-                  <span className="text-sm whitespace-nowrap">{item.title}</span>
-                  {item.badge && (
-                    <span className="ml-auto bg-primary text-primary-foreground text-xs font-medium px-1.5 py-0.5 rounded-sm min-w-[20px] text-center">
-                      {item.badge}
-                    </span>
-                  )}
-                </>
-              )}
+              {!collapsed && <span className="text-sm whitespace-nowrap">{item.title}</span>}
             </button>
           );
         })}
       </nav>
 
-      {/* User section */}
       <div className="p-3 flex-shrink-0">
         <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm flex-shrink-0">
@@ -137,7 +91,7 @@ const AppSidebar = () => {
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <p className="text-xs text-muted-foreground">Admin</p>
             </div>
           )}
           {!collapsed && (
@@ -155,4 +109,4 @@ const AppSidebar = () => {
   );
 };
 
-export default AppSidebar;
+export default AdminSidebar;
