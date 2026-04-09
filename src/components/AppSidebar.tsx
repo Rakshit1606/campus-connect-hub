@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
   BookOpen,
-  DollarSign,
+  IndianRupee,
   MessageSquare,
   Megaphone,
   BarChart3,
@@ -26,7 +26,7 @@ interface NavItem {
 const studentNav: NavItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
   { title: "Academics", icon: BookOpen, path: "/academics" },
-  { title: "Finance & Fees", icon: DollarSign, path: "/finance" },
+  { title: "Finance & Fees", icon: IndianRupee, path: "/finance" },
   { title: "Queries", icon: MessageSquare, path: "/queries", badge: 2 },
   { title: "Announcements", icon: Megaphone, path: "/announcements" },
   { title: "Performance", icon: BarChart3, path: "/performance" },
