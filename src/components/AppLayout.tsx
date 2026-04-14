@@ -1,8 +1,11 @@
 import { Outlet } from "react-router-dom";
 import AppSidebar from "@/components/AppSidebar";
 import TopBar from "@/components/TopBar";
+import { useQueryNotifications } from "@/hooks/useQueryNotifications";
 
 const AppLayout = () => {
+  useQueryNotifications();
+  
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />

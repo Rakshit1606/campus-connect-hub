@@ -38,27 +38,48 @@ const AdminQueriesPage = () => {
 
   const fetchQueries = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data: queriesData, error } = await supabase
       .from("queries")
-      .select(`
-        id, title, description, category, status, created_at, assigned_faculty_id,
-        student:profiles!queries_student_id_fkey(full_name, email),
-        faculty:profiles!queries_assigned_faculty_id_fkey(full_name)
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
 
-    const mapped: AdminQuery[] = (data || []).map((q: any) => ({
-      id: q.id,
-      title: q.title,
-      description: q.description,
-      category: q.category,
-      status: q.status,
-      created_at: q.created_at,
-      student_name: q.student?.full_name || "Unknown",
-      student_email: q.student?.email || "",
-      assigned_faculty_id: q.assigned_faculty_id,
-      assigned_faculty_name: q.faculty?.full_name || null,
-    }));
+    if (error) {
+      console.error("Error fetching queries:", error);
+      setLoading(false);
+      return;
+    }
+
+    const userIds = new Set<string>();
+    queriesData?.forEach((q: any) => {
+      if (q.student_id) userIds.add(q.student_id);
+      if (q.assigned_faculty_id) userIds.add(q.assigned_faculty_id);
+    });
+
+    let profilesData: any[] = [];
+    if (userIds.size > 0) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", Array.from(userIds));
+      profilesData = data || [];
+    }
+
+    const mapped: AdminQuery[] = (queriesData || []).map((q: any) => {
+      const student = profilesData.find((p) => p.id === q.student_id);
+      const faculty = profilesData.find((p) => p.id === q.assigned_faculty_id);
+      return {
+        id: q.id,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        status: q.status,
+        created_at: q.created_at,
+        student_name: student?.full_name || "Unknown",
+        student_email: student?.email || "",
+        assigned_faculty_id: q.assigned_faculty_id,
+        assigned_faculty_name: faculty?.full_name || null,
+      };
+    });
     setQueries(mapped);
     setLoading(false);
   };
