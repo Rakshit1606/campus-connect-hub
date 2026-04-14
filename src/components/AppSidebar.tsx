@@ -2,17 +2,8 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  LayoutDashboard,
-  BookOpen,
-  IndianRupee,
-  MessageSquare,
-  Megaphone,
-  BarChart3,
-  Trophy,
-  Settings,
-  ChevronLeft,
-  LogOut,
-  Plus,
+  LayoutDashboard, BookOpen, IndianRupee, MessageSquare, Megaphone,
+  BarChart3, Trophy, Settings, ChevronLeft, LogOut, Plus, GraduationCap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -53,40 +44,46 @@ const AppSidebar = () => {
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 64 : 240 }}
-      transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-      className="h-screen bg-card shadow-surface flex flex-col flex-shrink-0 overflow-hidden relative z-10"
+      animate={{ width: collapsed ? 72 : 260 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className="h-screen gradient-navy flex flex-col flex-shrink-0 overflow-hidden relative z-10 shadow-lg"
     >
       {/* Header */}
-      <div className="h-14 flex items-center px-4 flex-shrink-0">
+      <div className="h-16 flex items-center px-4 flex-shrink-0 border-b border-white/10">
         <AnimatePresence mode="wait">
           {!collapsed && (
-            <motion.span
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-base font-semibold text-foreground tracking-tight whitespace-nowrap"
+              className="flex items-center gap-2.5"
             >
-              CampusFlow
-            </motion.span>
+              <div className="h-8 w-8 rounded-lg gradient-gold flex items-center justify-center">
+                <GraduationCap className="h-4.5 w-4.5 text-navy" style={{ color: 'hsl(224, 71%, 15%)' }} />
+              </div>
+              <span className="text-base font-bold text-white tracking-tight whitespace-nowrap font-display">
+                CampusFlow
+              </span>
+            </motion.div>
           )}
         </AnimatePresence>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto h-7 w-7 flex items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-150"
+          className="ml-auto h-8 w-8 flex items-center justify-center rounded-lg text-blue-300 hover:text-white hover:bg-white/10 transition-colors duration-150"
         >
-          <ChevronLeft className={`h-4 w-4 transition-transform duration-150 ${collapsed ? "rotate-180" : ""}`} />
+          <ChevronLeft className={`h-4 w-4 transition-transform duration-200 ${collapsed ? "rotate-180" : ""}`} />
         </button>
       </div>
 
       {/* Raise Query Button (Student) */}
       {user?.role === "student" && (
-        <div className="px-3 mb-2">
+        <div className="px-3 mt-4 mb-2">
           <button
             onClick={() => navigate("/queries/new")}
-            className={`flex items-center gap-2 bg-primary text-primary-foreground rounded-sm font-medium hover:opacity-90 transition-opacity duration-150 ${
-              collapsed ? "h-9 w-9 justify-center mx-auto" : "h-9 px-3 w-full"
+            className={`flex items-center gap-2 gradient-gold rounded-lg font-semibold hover:opacity-90 transition-all duration-150 shadow-md ${
+              collapsed ? "h-10 w-10 justify-center mx-auto" : "h-10 px-4 w-full"
             }`}
+            style={{ color: 'hsl(224, 71%, 15%)' }}
           >
             <Plus className="h-4 w-4 flex-shrink-0" />
             {!collapsed && <span className="text-sm">Raise Query</span>}
@@ -95,29 +92,29 @@ const AppSidebar = () => {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
+          const isActive = location.pathname === item.path ||
             (item.path !== "/" && location.pathname.startsWith(item.path));
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 h-9 rounded-sm transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 h-10 rounded-lg transition-all duration-150 ${
                 collapsed ? "justify-center px-0" : "px-3"
               } ${
                 isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  ? "bg-white/15 text-white font-medium shadow-sm"
+                  : "text-blue-200/70 hover:text-white hover:bg-white/8"
               }`}
               title={collapsed ? item.title : undefined}
             >
-              <item.icon className="h-4 w-4 flex-shrink-0" />
+              <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
               {!collapsed && (
                 <>
                   <span className="text-sm whitespace-nowrap">{item.title}</span>
                   {item.badge && (
-                    <span className="ml-auto bg-primary text-primary-foreground text-xs font-medium px-1.5 py-0.5 rounded-sm min-w-[20px] text-center">
+                    <span className="ml-auto gradient-gold text-xs font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center" style={{ color: 'hsl(224, 71%, 15%)' }}>
                       {item.badge}
                     </span>
                   )}
@@ -129,21 +126,21 @@ const AppSidebar = () => {
       </nav>
 
       {/* User section */}
-      <div className="p-3 flex-shrink-0">
+      <div className="p-3 flex-shrink-0 border-t border-white/10">
         <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm flex-shrink-0">
+          <div className="h-9 w-9 rounded-full gradient-gold flex items-center justify-center font-bold text-sm flex-shrink-0" style={{ color: 'hsl(224, 71%, 15%)' }}>
             {user?.name?.charAt(0)}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+              <p className="text-xs text-blue-300 capitalize">{user?.role}</p>
             </div>
           )}
           {!collapsed && (
             <button
               onClick={logout}
-              className="h-7 w-7 flex items-center justify-center rounded-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-150"
+              className="h-8 w-8 flex items-center justify-center rounded-lg text-blue-300 hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
